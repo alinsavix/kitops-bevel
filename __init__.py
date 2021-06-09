@@ -17,7 +17,7 @@ bl_info = {
     'author': 'Chipp Walters, bonjorno7',
     'description': 'Bake rendered bevels on KIT OPS created objects that work for EEVEE',
     'blender': (2, 83, 0),
-    'version': (1, 1, 8),
+    'version': (1, 2, 1),
     'category': '3D View',
     'location': 'View3D',
 }

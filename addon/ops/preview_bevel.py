@@ -36,6 +36,7 @@ class PreviewBevel(bpy.types.Operator):
 
 
     def execute(self, context):
+        prefs = utils.addon.prefs()
         options = utils.addon.options()
         preview = utils.addon.preview()
 
@@ -51,15 +52,17 @@ class PreviewBevel(bpy.types.Operator):
 
             preview.previewing = True
 
-            device_type, devices_use = utils.render.setup_compute()
-            preview.device_type = device_type
+            if prefs.auto_device_switch:
+                device_type, devices_use = utils.render.setup_compute()
+                preview.device_type = device_type
 
-            for device_use in devices_use:
-                preview.devices_use.add()
-                preview.devices_use[-1].name = str(device_use)
+                for device_use in devices_use:
+                    preview.devices_use.add()
+                    preview.devices_use[-1].name = str(device_use)
 
             preview.render_engine = render.engine
-            preview.cycles_device = cycles.device
+            if prefs.auto_device_switch:
+                preview.cycles_device = cycles.device
             preview.shading_type = shading.type
 
             preview.shading_scene_lights = shading.use_scene_lights_render
@@ -71,9 +74,10 @@ class PreviewBevel(bpy.types.Operator):
                 preview.selected_objects.add()
                 preview.selected_objects[-1].name = obj.name
 
-            for obj in context.visible_objects:
-                preview.visible_objects.add()
-                preview.visible_objects[-1].name = obj.name
+            for obj in context.scene.objects:
+                if obj.hide_get() == False:
+                    preview.visible_objects.add()
+                    preview.visible_objects[-1].name = obj.name
 
             for mat in active.data.materials:
                 preview.materials.add()
@@ -84,7 +88,8 @@ class PreviewBevel(bpy.types.Operator):
                 preview.polygons[-1].name = str(poly.material_index)
 
             render.engine = 'CYCLES'
-            cycles.device = 'GPU'
+            if prefs.auto_device_switch:
+                cycles.device = 'GPU'
             shading.type = 'RENDERED'
 
             shading.use_scene_lights_render = False
@@ -106,12 +111,14 @@ class PreviewBevel(bpy.types.Operator):
         else:
             preview.previewing = False
 
-            devices_use = [True if device_use.name == 'True' else False for device_use in preview.devices_use]
-            utils.render.reset_compute(preview.device_type, devices_use)
-            preview.devices_use.clear()
+            if prefs.auto_device_switch:
+                devices_use = [True if device_use.name == 'True' else False for device_use in preview.devices_use]
+                utils.render.reset_compute(preview.device_type, devices_use)
+                preview.devices_use.clear()
 
             render.engine = preview.render_engine
-            cycles.device = preview.cycles_device
+            if prefs.auto_device_switch:
+                cycles.device = preview.cycles_device
             shading.type = preview.shading_type
 
             shading.use_scene_lights_render = preview.shading_scene_lights

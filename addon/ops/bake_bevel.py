@@ -33,6 +33,8 @@ class BakeBevel(bpy.types.Operator):
 
 
     def execute(self, context):
+        prefs = utils.addon.prefs()
+
         if 'cycles' not in context.preferences.addons:
             self.report({'WARNING'}, 'Please enable Cycles')
             return {'CANCELLED'}
@@ -41,15 +43,18 @@ class BakeBevel(bpy.types.Operator):
         if preview.previewing:
             bpy.ops.kob.preview_bevel()
 
-        device_type, devices_use = utils.render.setup_compute()
+        if prefs.auto_device_switch:
+            device_type, devices_use = utils.render.setup_compute()
 
         render_engine = context.scene.render.engine
-        cycles_device = context.scene.cycles.device
+        if prefs.auto_device_switch:
+            cycles_device = context.scene.cycles.device
         cycles_samples = context.scene.cycles.samples
         shading_type = context.space_data.shading.type
 
         context.scene.render.engine = 'CYCLES'
-        context.scene.cycles.device = 'GPU'
+        if prefs.auto_device_switch:
+            context.scene.cycles.device = 'GPU'
         context.scene.cycles.samples = 32
         context.space_data.shading.type = 'MATERIAL'
 
@@ -95,10 +100,12 @@ class BakeBevel(bpy.types.Operator):
         prefs = utils.addon.prefs()
         time.sleep(prefs.after_bake_delay)
 
-        utils.render.reset_compute(device_type, devices_use)
+        if prefs.auto_device_switch:
+            utils.render.reset_compute(device_type, devices_use)
 
         context.scene.render.engine = render_engine
-        context.scene.cycles.device = cycles_device
+        if prefs.auto_device_switch:
+            context.scene.cycles.device = cycles_device
         context.scene.cycles.samples = cycles_samples
         context.space_data.shading.type = shading_type
 

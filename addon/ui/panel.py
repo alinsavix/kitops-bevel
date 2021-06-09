@@ -11,6 +11,13 @@ class MainPanel(bpy.types.Panel):
     bl_region_type = 'UI'
 
 
+    def draw_header_preset(self, context):
+        layout = self.layout
+
+        op = layout.operator('wm.url_open', text='', icon_value=icons.id('question'))
+        op.url = 'http://cw1.me/bevel'
+
+
     def draw(self, context):
         layout = self.layout
 
@@ -130,16 +137,3 @@ class MainPanel(bpy.types.Panel):
         row = split.row()
         row.enabled = worn_bevel
         row.operator('kob.save_mask', text='Save Mask', icon='DISK_DRIVE')
-
-        layout.separator()
-
-        row = layout.row()
-        row.emboss = 'PULLDOWN_MENU'
-        row.label(text='Documentation')
-
-        row = layout.row()
-        row.scale_x = row.scale_y = 1.5
-        row.alignment = 'RIGHT'
-
-        op = row.operator('wm.url_open', text='', icon_value=icons.id('question'))
-        op.url = 'http://cw1.me/bevel'

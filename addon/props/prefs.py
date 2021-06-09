@@ -33,6 +33,13 @@ class AddonPrefs(bpy.types.AddonPreferences):
     )
 
 
+    auto_device_switch: bpy.props.BoolProperty(
+        name='Auto Device Switch',
+        description='Automatically switch to GPU rendering during bake',
+        default=True,
+    )
+
+
     def draw(self, context):
         layout = self.layout
         box = layout.box()
@@ -52,5 +59,11 @@ class AddonPrefs(bpy.types.AddonPreferences):
         split = box.split(factor=0.5)
         split.label(text='After Bake Delay')
         split.prop(self, 'after_bake_delay', text='')
+
+        split = box.split(factor=0.5)
+        split.label(text='Auto Device Switch')
+        row = split.row()
+        row.alignment = 'RIGHT'
+        row.prop(self, 'auto_device_switch', text='')
 
         box.separator()
